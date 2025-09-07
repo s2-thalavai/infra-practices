@@ -88,3 +88,13 @@ If that fails too, it likely means the Docker daemon isn’t properly installed 
 ### Full Cleanup (containers, images, volumes, networks)
 
     docker system prune -a --volumes
+
+## Docker Compose
+
+    sudo apt-get update
+    sudo apt-get install docker-compose-plugin
+    docker compose version
+
+<img width="907" height="733" alt="image" src="https://github.com/user-attachments/assets/1ead16e2-d49b-4f33-a619-b0ab451caa42" />
+
+
