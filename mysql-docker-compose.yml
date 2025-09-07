@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: procureEngineDB
+      MYSQL_USER: procuremysqluser
+      MYSQL_PASSWORD: procuremysqluser@1046
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  default:
+    external:
+      name: procureengine-mysql
