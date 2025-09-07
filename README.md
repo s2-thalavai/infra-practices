@@ -231,9 +231,9 @@ Then log in at http://localhost:15672 using:
 
 <img width="892" height="542" alt="image" src="https://github.com/user-attachments/assets/96aeeb7c-1bca-45c5-88f7-94de999238bb" />
 
-<img width="1918" height="426" alt="image" src="https://github.com/user-attachments/assets/cb98995a-ee59-430a-ac07-9863fde27025" />
+<img width="1918" height="401" alt="image" src="https://github.com/user-attachments/assets/b8aebf2f-9c49-4d02-88c7-ab0406c98d46" />
 
-<img width="1918" height="1025" alt="image" src="https://github.com/user-attachments/assets/4eb770a6-8262-4030-97d1-731c50bbaf9d" />
+<img width="1918" height="1016" alt="image" src="https://github.com/user-attachments/assets/42819bda-7900-4fc6-89b6-5df7897a1f6b" />
 
 
 ## Docker Commands
