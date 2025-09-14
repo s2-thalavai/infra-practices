@@ -7,18 +7,29 @@
     
     Its recent version is WSL2 and in this guide we'll discuss it in detail.
 
-## What is WSL2?
+
+
+## Windows Subsystem for Linux (WSL)
 
     https://learn.microsoft.com/en-us/windows/wsl/install-manual
 
-    Windows Subsystem for Linux provides a compatibility layer that lets you run Linux binary executables natively on Windows.
-    
-    WSL2 (Windows Subsystem for Linux version 2) is the latest version of WSL. 
-    WSL2 architecture replaces WSL's architecture by using a lightweight virtual machine. 
-    In the new version, you can run an actual Linux kernel which improves overall performance.
+### Overview
 
-Search for "Turn Windows features on or off."
-Check the option Windows Subsystem for Linux.
+    Windows Subsystem for Linux provides a compatibility layer that lets you run Linux binary executables natively on Windows.
+
+### WSL2: The Latest Version
+
+    WSL2 (Windows Subsystem for Linux version 2) introduces a new architecture that replaces the original WSL design 
+    by using a lightweight virtual machine.
+
+### Key Improvements in WSL2
+
+    - Runs an actual Linux kernel
+    - Improves overall performance
+    - Enhances system call compatibility
+    
+    Search for "Turn Windows features on or off."
+    Check the option Windows Subsystem for Linux.
 
 <img width="891" height="550" alt="image" src="https://github.com/user-attachments/assets/328747b6-0175-40e6-8b36-d1b84b01a6ec" />
 
@@ -61,25 +72,25 @@ Check the status by launching Windows PowerShell.
 
     wsl --set-default <Distribution Name>
 
-To set the default Linux distribution that WSL commands will use to run, replace <Distribution Name> with the name of your preferred Linux distribution.
+    To set the default Linux distribution that WSL commands will use to run, replace <Distribution Name> with the name of your preferred Linux distribution.
 
 ### Start WSL in user's home
 
     wsl ~
 
-The ~ can be used with wsl to start in the user's home directory. 
-To jump from any directory back to home from within a WSL command prompt, you can use the command: cd ~.
-
-File System Integration
-One of WSL2’s strongest features is its file system integration. Here’s how to make the most of it: 
+    The ~ can be used with wsl to start in the user's home directory. 
+    To jump from any directory back to home from within a WSL command prompt, you can use the command: cd ~.
+    
+    File System Integration
+    One of WSL2’s strongest features is its file system integration. Here’s how to make the most of it: 
 
 ### Accessing Windows Files from Linux
 
-Your Windows drives are automatically mounted under `/mnt/`: 
-
-Access C drive 
-
-    cd /mnt/c
+    Your Windows drives are automatically mounted under `/mnt/`: 
+    
+    Access C drive 
+    
+        cd /mnt/c
 
 Inside your WSL terminal (e.g., Ubuntu), your Windows drives are mounted under /mnt. 
 
