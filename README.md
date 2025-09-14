@@ -135,65 +135,45 @@ Ensure WSL 2 can reach Windows services:
 
 ## Steps to Install OpenJDK (Default Java)
 
-    Open Source & Cost-Free
-    
-        Licensed under GNU GPL + Classpath Exception, meaning:
-        
-        No licensing fees or subscriptions
-        
-        Full freedom to modify, redistribute, and audit the source
-        
-        Ideal for CI/CD pipelines, containerized deployments, and hybrid cloud setups without legal overhead
+## Open Source & Cost-Free
+- Licensed under **GNU GPL + Classpath Exception**, meaning:
+  - No licensing fees or subscriptions
+  - Full freedom to modify, redistribute, and audit the source
+  - Ideal for CI/CD pipelines, containerized deployments, and hybrid cloud setups without legal overhead
 
-    LTS Stability with Modern Features
+## LTS Stability with Modern Features
+- Java 21 is a **Long-Term Support (LTS)** release, ensuring:
+  - 8+ years of community updates and security patches
+  - Enterprise-grade reliability for production systems
 
-        Java 21 is a Long-Term Support (LTS) release, ensuring:
-    
-            8+ years of community updates and security patches
-            
-            Enterprise-grade reliability for production systems
+### Key Enhancements:
+- **Virtual Threads (Project Loom)** for scalable concurrency
+- **Record Patterns** and **Pattern Matching for switch** for cleaner, expressive code
+- **Sequenced Collections** for predictable iteration order
 
-    Includes enhancements like:
+## Modularity & Performance
+- Improved **JVM performance** and **GC tuning** (G1, ZGC) for low-latency workloads
+- Enhanced **JEPs (Java Enhancement Proposals)** that support:
+  - Streamlined observability
+  - Better memory footprint for microservices
+  - Faster startup and reduced warm-up time—critical for serverless and edge deployments
 
-        Virtual Threads (Project Loom) for scalable concurrency
-        
-        Record Patterns and Pattern Matching for switch for cleaner, expressive code
-        
-        Sequenced Collections for predictable iteration order
+## Security & Compliance
+- Regular community-driven updates ensure:
+  - Timely patching of CVEs
+  - Transparent changelogs and reproducibility
+- No vendor lock-in—ideal for **multi-cloud governance** and **auditability**
 
-    Modularity & Performance
+## Broad Ecosystem Support
+- Supported by major platforms:
+  - AWS Corretto
+  - Eclipse Temurin
+  - Azul Zulu
 
-        Improved JVM performance and GC tuning (G1, ZGC) for low-latency workloads
-        
-        Enhanced JEPs (Java Enhancement Proposals) that support:
-        
-            Streamlined observability
-            
-            Better memory footprint for microservices
-            
-            Faster startup and reduced warm-up time—critical for serverless and edge deployments
-
-Security & Compliance
-
-    Regular community-driven updates ensure:
-    
-        Timely patching of CVEs
-        
-        Transparent changelogs and reproducibility
-    
-    No vendor lock-in—ideal for multi-cloud governance and auditability
-
-Broad Ecosystem Support
-
-    Supported by major platforms: AWS Corretto, Eclipse Temurin, Azul Zulu
-    
-    Seamless integration with:
-    
-        Spring Boot 3.x
-        
-        Jakarta EE 10+
-        
-        GraalVM (for native image builds)
+### Seamless Integration With:
+- Spring Boot 3.x  
+- Jakarta EE 10+  
+- GraalVM (for native image builds)
 
 ### Update package index
 
