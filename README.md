@@ -130,3 +130,96 @@ Benchmark RabbitMQ and Kafka across Windows and WSL 2 environments to evaluate l
 Ensure WSL 2 can reach Windows services:
 
     ip route | grep default
+    
+# install Java, Node.js and Python
+
+## Steps to Install OpenJDK (Default Java)
+
+    Open Source & Cost-Free
+    
+        Licensed under GNU GPL + Classpath Exception, meaning:
+        
+        No licensing fees or subscriptions
+        
+        Full freedom to modify, redistribute, and audit the source
+        
+        Ideal for CI/CD pipelines, containerized deployments, and hybrid cloud setups without legal overhead
+
+    LTS Stability with Modern Features
+
+        Java 21 is a Long-Term Support (LTS) release, ensuring:
+    
+            8+ years of community updates and security patches
+            
+            Enterprise-grade reliability for production systems
+
+    Includes enhancements like:
+
+        Virtual Threads (Project Loom) for scalable concurrency
+        
+        Record Patterns and Pattern Matching for switch for cleaner, expressive code
+        
+        Sequenced Collections for predictable iteration order
+
+    Modularity & Performance
+
+        Improved JVM performance and GC tuning (G1, ZGC) for low-latency workloads
+        
+        Enhanced JEPs (Java Enhancement Proposals) that support:
+        
+            Streamlined observability
+            
+            Better memory footprint for microservices
+            
+            Faster startup and reduced warm-up time—critical for serverless and edge deployments
+
+Security & Compliance
+
+    Regular community-driven updates ensure:
+    
+        Timely patching of CVEs
+        
+        Transparent changelogs and reproducibility
+    
+    No vendor lock-in—ideal for multi-cloud governance and auditability
+
+Broad Ecosystem Support
+
+    Supported by major platforms: AWS Corretto, Eclipse Temurin, Azul Zulu
+    
+    Seamless integration with:
+    
+        Spring Boot 3.x
+        
+        Jakarta EE 10+
+        
+        GraalVM (for native image builds)
+
+### Update package index
+
+    sudo apt update
+
+### Install default JDK (includes JRE)
+
+    sudo apt install -y openjdk-21-jdk
+
+### Verify installation
+
+    java -version
+    javac -version
+
+This installs the latest LTS version available in Ubuntu’s repositories—typically OpenJDK 17 or 21 depending on your distro version2.
+
+## Install node.js via APT (Quick & Simple)
+
+    sudo apt update
+    sudo apt install -y nodejs npm
+    node -v
+    npm -v
+    
+### Install Default Python (Usually Python 3.x)
+
+    sudo apt update
+    sudo apt install -y python3 python3-pip
+    python3 --version
+    pip3 --version
