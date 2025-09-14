@@ -210,6 +210,46 @@ Broad Ecosystem Support
 
 This installs the latest LTS version available in Ubuntu’s repositories—typically OpenJDK 17 or 21 depending on your distro version2.
 
+### Download latest Maven binary
+
+    wget https://downloads.apache.org/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.tar.gz
+
+### Extract and move to /opt
+
+    tar -xvzf apache-maven-3.9.11-bin.tar.gz
+    sudo mv apache-maven-3.9.11 /opt/maven
+
+### Set environment variables
+
+    echo "export M2_HOME=/opt/maven" >> ~/.bashrc
+    echo "export PATH=\$M2_HOME/bin:\$PATH" >> ~/.bashrc
+    source ~/.bashrc
+
+### Verify
+
+    mvn -version
+
+### Gradle Manual Install (Latest Version)
+
+### Download latest Gradle binary
+
+    wget https://services.gradle.org/distributions/gradle-9.0.0-bin.zip -P /tmp
+
+### Extract and move to /opt
+
+    sudo unzip -d /opt/gradle /tmp/gradle-9.0.0-bin.zip
+
+### Set environment variables
+
+    echo "export GRADLE_HOME=/opt/gradle/gradle-9.0.0" >> ~/.bashrc
+    echo "export PATH=\$GRADLE_HOME/bin:\$PATH" >> ~/.bashrc
+    source ~/.bashrc
+
+#### Verify
+    gradle -v
+
+<img width="958" height="582" alt="image" src="https://github.com/user-attachments/assets/b7be91b9-e21c-4ae5-ab99-98737dc784fe" />
+
 ## Install node.js via APT (Quick & Simple)
 
     sudo apt update
@@ -223,3 +263,5 @@ This installs the latest LTS version available in Ubuntu’s repositories—typi
     sudo apt install -y python3 python3-pip
     python3 --version
     pip3 --version
+
+<img width="1017" height="258" alt="image" src="https://github.com/user-attachments/assets/f34b7500-64d6-4e26-9774-5c4319739e08" />
