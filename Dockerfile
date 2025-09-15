@@ -1,35 +1,27 @@
-# ---------- Stage 1: Build ----------
-FROM maven:3.9.6-eclipse-temurin-21 AS builder
+# Base image: Eclipse Temurin JDK 21 with glibc
+FROM eclipse-temurin:21-jre
 
-WORKDIR /build
-
-# Copy source code and build
-COPY pom.xml .
-COPY src ./src
-
-RUN mvn clean package -DskipTests
-
-# ---------- Stage 2: Runtime ----------
-FROM alpine:3.19
-
-# Install OpenJDK 21 and debugging tools
-RUN apk add --no-cache \
-    openjdk21-jre \
-    bash \
-    busybox-extras \
-    iputils \
-    net-tools \
+# Install debugging and observability tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     curl \
-    bind-tools \
-    openssl \
+    wget \
+    net-tools \
+    iputils-ping \
+    dnsutils \
+    telnet \
+    bash \
     traceroute \
-    wget
+    openssl \
+    procps && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Copy built JAR from builder stage
-COPY --from=builder /build/target/mexcellence-service.jar app.jar
+# Copy prebuilt JAR from Jenkins artifact
+COPY mexcellence-service.jar app.jar
 
 # Expose application port
 EXPOSE 8080
@@ -46,6 +38,9 @@ ENTRYPOINT [
   "-XX:+UseContainerSupport",
   "-XX:MaxRAMPercentage=75.0",
   "-XX:+HeapDumpOnOutOfMemoryError",
+  "-XX:+PreserveFramePointer",
+  "-XX:+UnlockDiagnosticVMOptions",
+  "-XX:+DebugNonSafepoints",
   "-jar",
   "app.jar"
 ]
