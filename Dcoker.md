@@ -400,3 +400,27 @@ Use `eclipse-temurin:17-jre` for:
 - Mount `/tmp` or `/app/profiler` for flamegraph output
 - Enable `JFR` via `-XX:StartFlightRecording=...` if needed
 
+## Inspect OS from Inside the Pod
+
+Run this command to open a shell inside the pod:
+
+        kubectl exec -it <pod-name> -- /bin/sh
+
+Then inside the shell, run:
+
+    cat /etc/os-release
+
+This will output something like:
+
+    NAME="Debian GNU/Linux"
+    VERSION="11 (bullseye)"
+    ID=debian
+
+If /bin/sh doesn't work, try /bin/bash depending on the image.
+
+### If you want the OS of the host node (not the container), run:
+
+```
+kubectl get node $(kubectl get pod <pod-name> -o jsonpath='{.spec.nodeName}') -o jsonpath='{.status.nodeInfo.osImage}'
+```
+
