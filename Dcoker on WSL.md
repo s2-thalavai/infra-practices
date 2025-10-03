@@ -78,6 +78,30 @@ This gives a clean table of container IDs, names, and port mappings.
 
 ---
 
+### To restart Docker itself (the Docker service, not just a container), 
+
+run:
+
+    sudo systemctl restart docker
+
+This will:
+
+    Stop all running containers
+    
+    Restart the Docker daemon
+    
+    Automatically restart containers that were configured with --restart unless-stopped or --restart always
+
+### Verify Docker Is Running
+
+    sudo systemctl status docker
+
+You should see active (running) in green.
+
+<img width="1918" height="597" alt="image" src="https://github.com/user-attachments/assets/b5ec99cf-b447-420b-8395-971032bd239a" />
+
+---
+
 ## Step-by-Step Cleanup
 
 ### 1. Stop all running containers
