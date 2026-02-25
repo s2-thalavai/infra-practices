@@ -93,3 +93,19 @@ done
 
 echo "Analysis complete!"
 echo "Report: $REPORT"
+
+
+
+echo "----------------------------simple script------------------------"
+POD=<pod>
+NS=<ns>
+PID=$(kubectl exec $POD -n $NS -- pgrep -f java)
+
+for i in 1 2 3; do
+  kubectl exec $POD -n $NS -- kill -3 $PID
+  sleep 10
+done
+
+kubectl logs $POD -n $NS > dump.log
+
+echo "========================================================================="
