@@ -51,7 +51,9 @@ NAMESPACE=$3
 ALERTMANAGER_URL=$4
 
 # OUTPUT DIRECTORY
-BASE_DIR="/c/jvm_diagnostics"
+## BASE_DIR="/c/jvm_diagnostics"
+BASE_DIR="/var/log/jvm_diagnostics"
+
 
 mkdir -p $BASE_DIR
 
