@@ -1,121 +1,142 @@
 #!/bin/bash
 
-# ==============================
-# Advanced JVM Diagnostic Script
-# Supports: VM, Docker, Kubernetes
-# ==============================
+# ==============================================
+# Self-Triggering JVM Diagnostic Collector
+# ==============================================
 
-MODE=$1        # local | docker | k8s
-TARGET=$2      # PID or container/pod name
-S3_BUCKET=$3   # optional
-WEBHOOK_URL=$4 # optional
+MODE=$1                # local | k8s
+TARGET=$2              # pod name (k8s) or auto (local)
+NAMESPACE=$3           # optional (k8s)
+ALERTMANAGER_URL=$4    # optional
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-OUTPUT_DIR="jvm_diag_${TARGET}_${TIMESTAMP}"
+OUTPUT_DIR="jvm_auto_diag_${TIMESTAMP}"
 mkdir -p $OUTPUT_DIR
 
-echo "Mode: $MODE"
-echo "Target: $TARGET"
-echo "Output Dir: $OUTPUT_DIR"
+echo "Starting JVM Auto Diagnostic..."
 
-# ==============================
-# Function: Thread Dumps (3x)
-# ==============================
-collect_thread_dumps() {
-  echo "Collecting 3 thread dumps (10 sec apart)..."
-  for i in 1 2 3; do
-    jstack -l $TARGET > $OUTPUT_DIR/thread_dump_$i.txt
-    sleep 10
-  done
-}
-
-# ==============================
-# Function: Heap Dump (Compressed)
-# ==============================
-collect_heap_dump() {
-  echo "Collecting Heap Dump..."
-  jmap -dump:live,format=b,file=$OUTPUT_DIR/heap_dump.hprof $TARGET
-
-  echo "Compressing Heap Dump..."
-  gzip $OUTPUT_DIR/heap_dump.hprof
-}
-
-# ==============================
-# Function: JVM Stats
-# ==============================
-collect_jvm_stats() {
-  jcmd $TARGET VM.flags > $OUTPUT_DIR/jvm_flags.txt
-  jcmd $TARGET VM.system_properties > $OUTPUT_DIR/system_properties.txt
-  jmap -heap $TARGET > $OUTPUT_DIR/heap_info.txt
-  jmap -histo:live $TARGET > $OUTPUT_DIR/class_histogram.txt
-  jstat -gc $TARGET > $OUTPUT_DIR/gc_stats.txt
-}
-
-# ==============================
-# LOCAL MODE
-# ==============================
+# ==============================================
+# AUTO-DETECT JAVA PID (LOCAL)
+# ==============================================
 if [ "$MODE" == "local" ]; then
-  collect_thread_dumps
-  collect_jvm_stats
-  collect_heap_dump
+  PID=$(jps | grep -v Jps | awk '{print $1}' | head -1)
+  echo "Detected Java PID: $PID"
 fi
 
-# ==============================
-# DOCKER MODE
-# ==============================
-if [ "$MODE" == "docker" ]; then
-  echo "Running inside Docker container..."
-  docker exec $TARGET jstack -l 1 > $OUTPUT_DIR/thread_dump_1.txt
-  sleep 10
-  docker exec $TARGET jstack -l 1 > $OUTPUT_DIR/thread_dump_2.txt
-  sleep 10
-  docker exec $TARGET jstack -l 1 > $OUTPUT_DIR/thread_dump_3.txt
-
-  docker exec $TARGET jmap -dump:live,format=b,file=/tmp/heap_dump.hprof 1
-  docker cp $TARGET:/tmp/heap_dump.hprof $OUTPUT_DIR/
-  gzip $OUTPUT_DIR/heap_dump.hprof
-fi
-
-# ==============================
-# KUBERNETES MODE
-# ==============================
+# ==============================================
+# AUTO-DETECT JAVA PID (K8S)
+# ==============================================
 if [ "$MODE" == "k8s" ]; then
-  echo "Running inside Kubernetes pod..."
-
-  kubectl exec $TARGET -- jstack -l 1 > $OUTPUT_DIR/thread_dump_1.txt
-  sleep 10
-  kubectl exec $TARGET -- jstack -l 1 > $OUTPUT_DIR/thread_dump_2.txt
-  sleep 10
-  kubectl exec $TARGET -- jstack -l 1 > $OUTPUT_DIR/thread_dump_3.txt
-
-  kubectl exec $TARGET -- jmap -dump:live,format=b,file=/tmp/heap_dump.hprof 1
-  kubectl cp $TARGET:/tmp/heap_dump.hprof $OUTPUT_DIR/heap_dump.hprof
-  gzip $OUTPUT_DIR/heap_dump.hprof
+  echo "Namespace: $NAMESPACE"
+  PID=1
+  echo "Using PID 1 inside container"
 fi
 
-# ==============================
-# TAR ARCHIVE
-# ==============================
-echo "Creating archive..."
+# ==============================================
+# FUNCTION: Get Old Gen Usage %
+# ==============================================
+get_old_gen_usage() {
+  if [ "$MODE" == "local" ]; then
+    OLD=$(jstat -gc $PID | awk 'NR==2 {print $4+$6}')
+    MAX=$(jstat -gccapacity $PID | awk 'NR==2 {print $4+$6}')
+  else
+    OLD=$(kubectl exec -n $NAMESPACE $TARGET -- jstat -gc 1 | awk 'NR==2 {print $4+$6}')
+    MAX=$(kubectl exec -n $NAMESPACE $TARGET -- jstat -gccapacity 1 | awk 'NR==2 {print $4+$6}')
+  fi
+
+  USAGE=$(echo "scale=2; ($OLD/$MAX)*100" | bc)
+  echo $USAGE
+}
+
+# ==============================================
+# CHECK OLD GEN THRESHOLD
+# ==============================================
+OLD_USAGE=$(get_old_gen_usage)
+echo "Old Gen Usage: $OLD_USAGE %"
+
+THRESHOLD=80
+
+if (( $(echo "$OLD_USAGE < $THRESHOLD" | bc -l) )); then
+  echo "Old Gen below threshold. Exiting."
+  exit 0
+fi
+
+echo "Old Gen above 80%! Triggering diagnostics..."
+
+# ==============================================
+# THREAD DUMPS WITH CPU SNAPSHOT
+# ==============================================
+for i in {1..5}; do
+  if [ "$MODE" == "local" ]; then
+    jstack -l $PID > $OUTPUT_DIR/thread_dump_$i.txt
+    top -b -n 1 -p $PID > $OUTPUT_DIR/cpu_snapshot_$i.txt
+  else
+    kubectl exec -n $NAMESPACE $TARGET -- jstack -l 1 > $OUTPUT_DIR/thread_dump_$i.txt
+    kubectl exec -n $NAMESPACE $TARGET -- top -b -n 1 > $OUTPUT_DIR/cpu_snapshot_$i.txt
+  fi
+  sleep 10
+done
+
+# ==============================================
+# HEAP DUMP + COMPRESS
+# ==============================================
+if [ "$MODE" == "local" ]; then
+  jmap -dump:live,format=b,file=$OUTPUT_DIR/heap_dump.hprof $PID
+else
+  kubectl exec -n $NAMESPACE $TARGET -- jmap -dump:live,format=b,file=/tmp/heap_dump.hprof 1
+  kubectl cp -n $NAMESPACE $TARGET:/tmp/heap_dump.hprof $OUTPUT_DIR/heap_dump.hprof
+fi
+
+gzip $OUTPUT_DIR/heap_dump.hprof
+
+# ==============================================
+# COLLECT GC LOG (if exists)
+# ==============================================
+GC_LOG_PATH="/var/log/app/gc.log"
+
+if [ "$MODE" == "local" ]; then
+  if [ -f "$GC_LOG_PATH" ]; then
+    cp $GC_LOG_PATH $OUTPUT_DIR/
+  fi
+else
+  kubectl cp -n $NAMESPACE $TARGET:$GC_LOG_PATH $OUTPUT_DIR/gc.log 2>/dev/null
+fi
+
+# ==============================================
+# NODE MEMORY PRESSURE CHECK
+# ==============================================
+if [ "$MODE" == "k8s" ]; then
+  NODE=$(kubectl get pod -n $NAMESPACE $TARGET -o jsonpath='{.spec.nodeName}')
+  MEM_PRESSURE=$(kubectl describe node $NODE | grep MemoryPressure)
+
+  echo "Node Memory Status: $MEM_PRESSURE" > $OUTPUT_DIR/node_memory_status.txt
+fi
+
+# ==============================================
+# CREATE ARCHIVE
+# ==============================================
 tar -czf ${OUTPUT_DIR}.tar.gz $OUTPUT_DIR
 
-# ==============================
-# Upload to S3 (Optional)
-# ==============================
-if [ ! -z "$S3_BUCKET" ]; then
-  echo "Uploading to S3..."
-  aws s3 cp ${OUTPUT_DIR}.tar.gz s3://$S3_BUCKET/
+# ==============================================
+# ALERTMANAGER INTEGRATION
+# ==============================================
+if [ ! -z "$ALERTMANAGER_URL" ]; then
+  curl -X POST $ALERTMANAGER_URL \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"alerts\": [{
+      \"status\": \"firing\",
+      \"labels\": {
+        \"alertname\": \"JVMOldGenHigh\",
+        \"severity\": \"critical\"
+      },
+      \"annotations\": {
+        \"description\": \"Old Gen > 80%. Diagnostics collected.\",
+        \"summary\": \"JVM Auto Diagnostic Triggered\"
+      }
+    }]
+  }"
 fi
 
-# ==============================
-# Alert Integration (Optional)
-# ==============================
-if [ ! -z "$WEBHOOK_URL" ]; then
-  echo "Sending Alert..."
-  curl -X POST -H 'Content-type: application/json' \
-  --data "{\"text\":\"JVM Diagnostics collected for $TARGET at $TIMESTAMP\"}" \
-  $WEBHOOK_URL
-fi
-
-echo "Diagnostics Complete."
+echo "Diagnostics completed."
 echo "Archive: ${OUTPUT_DIR}.tar.gz"
