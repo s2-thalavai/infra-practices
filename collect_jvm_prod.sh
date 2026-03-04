@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Kubernetes
+# ./collect_jvm_auto.sh k8s payment-pod default http://alertmanager:9093/api/v1/alerts
+
+
 # ==============================================
 # Self-Triggering JVM Diagnostic Collector
 # ==============================================
