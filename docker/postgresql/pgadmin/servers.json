@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "BP Onboarding - Local",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "bp_onboarding",
+      "Username": "bp_app",
+      "SSLMode": "prefer",
+      "PassFile": "/pgpass"
+    }
+  }
+}
